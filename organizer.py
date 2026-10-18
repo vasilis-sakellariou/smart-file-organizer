@@ -13,6 +13,9 @@ for category, extensions in config["categories"].items():
     for extension in extensions:
         extension_to_category[extension.lower()] = category
 
+ignored_files = config["ignore"]["files"]
+ignored_prefixes = tuple(config["ignore"]["prefixes"])
+
 parser = argparse.ArgumentParser(description="Organize files into folders by type.")
 parser.add_argument("--folder", default="test_folder", help="Folder to organize (default: test_folder)")
 parser.add_argument("--dry-run", action="store_true", help="Show what would happen without moving any files")
@@ -26,14 +29,20 @@ if not folder.is_dir():
     raise SystemExit(1)
 
 for item in list(folder.iterdir()):
-    if item.is_file():
-        extension = item.suffix.lower()
-        category = extension_to_category.get(extension, "Others")
-        destination_folder = folder / category
+    if not item.is_file():
+        continue
 
-        if dry_run:
-            print(f"[DRY RUN] Would move: {item.name} -> {category}/")
-        else:
-            destination_folder.mkdir(exist_ok=True)
-            shutil.move(item, destination_folder / item.name)
-            print(f"Moved: {item.name} -> {category}/")
+    if item.name.lower() in ignored_files or item.name.startswith(ignored_prefixes):
+        print(f"Skipped: {item.name}")
+        continue
+
+    extension = item.suffix.lower()
+    category = extension_to_category.get(extension, "Others")
+    destination_folder = folder / category
+
+    if dry_run:
+        print(f"[DRY RUN] Would move: {item.name} -> {category}/")
+    else:
+        destination_folder.mkdir(exist_ok=True)
+        shutil.move(item, destination_folder / item.name)
+        print(f"Moved: {item.name} -> {category}/")

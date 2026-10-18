@@ -1,4 +1,3 @@
-
 {
     "categories": {
         "Images": [".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif"],
@@ -9,6 +8,10 @@
         "Installers": [".exe", ".msi"],
         "Code": [".py", ".java", ".m", ".html", ".htm"],
         "Music": [".mp3", ".wav"],
-        "Videos": [".mp4", ".mkv"]
+        "Videos": [".mp4", ".mkv", ".avi"]
+    },
+    "ignore": {
+        "files": ["desktop.ini", "thumbs.db"],
+        "prefixes": ["~$", "."]
     }
 }
