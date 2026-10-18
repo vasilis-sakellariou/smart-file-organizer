@@ -1,9 +1,22 @@
 import argparse
 import json
+import logging
 import shutil
 from pathlib import Path
 
-CONFIG_FILE = Path(__file__).parent / "config.json"
+PROJECT_DIR = Path(__file__).parent
+CONFIG_FILE = PROJECT_DIR / "config.json"
+LOG_FILE = PROJECT_DIR / "organizer.log"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[
+        logging.FileHandler(LOG_FILE, encoding="utf-8"),
+        logging.StreamHandler(),
+    ],
+)
 
 
 def get_unique_path(path):
@@ -38,15 +51,22 @@ folder = Path(args.folder).expanduser()
 dry_run = args.dry_run
 
 if not folder.is_dir():
-    print(f"Error: '{folder}' is not a valid folder.")
+    logging.error(f"'{folder}' is not a valid folder.")
     raise SystemExit(1)
+
+mode = "DRY RUN" if dry_run else "REAL RUN"
+logging.info(f"=== Started ({mode}) on folder: {folder} ===")
+
+moved_count = 0
+skipped_count = 0
 
 for item in list(folder.iterdir()):
     if not item.is_file():
         continue
 
     if item.name.lower() in ignored_files or item.name.startswith(ignored_prefixes):
-        print(f"Skipped: {item.name}")
+        logging.warning(f"Skipped: {item.name}")
+        skipped_count += 1
         continue
 
     extension = item.suffix.lower()
@@ -59,8 +79,12 @@ for item in list(folder.iterdir()):
         note = f" (renamed to '{destination.name}')"
 
     if dry_run:
-        print(f"[DRY RUN] Would move: {item.name} -> {category}/{note}")
+        logging.info(f"[DRY RUN] Would move: {item.name} -> {category}/{note}")
     else:
         destination_folder.mkdir(exist_ok=True)
         shutil.move(item, destination)
-        print(f"Moved: {item.name} -> {category}/{note}")
+        logging.info(f"Moved: {item.name} -> {category}/{note}")
+
+    moved_count += 1
+
+logging.info(f"=== Finished: {moved_count} files processed, {skipped_count} skipped ===")
