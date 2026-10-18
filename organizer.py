@@ -2,6 +2,7 @@ import shutil
 from pathlib import Path
 
 FOLDER = Path("test_folder")
+DRY_RUN = True  # Set to False to actually move files  
 
 CATEGORIES = {
     ".png": "Images",
@@ -18,9 +19,11 @@ for item in list(FOLDER.iterdir()):
     if item.is_file():
         extension = item.suffix.lower()
         category = CATEGORIES.get(extension, "Others")
-
         destination_folder = FOLDER / category
-        destination_folder.mkdir(exist_ok=True)
 
-        shutil.move(item, destination_folder / item.name)
-        print(f"Moved: {item.name} -> {category}/")
+        if DRY_RUN:
+            print(f"[DRY RUN] Would move: {item.name} -> {category}/")
+        else:
+            destination_folder.mkdir(exist_ok=True)
+            shutil.move(item, destination_folder / item.name)
+            print(f"Moved: {item.name} -> {category}/")
