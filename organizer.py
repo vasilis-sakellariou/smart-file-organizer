@@ -1,17 +1,17 @@
 import argparse
+import json
 import shutil
 from pathlib import Path
 
-CATEGORIES = {
-    ".png": "Images",
-    ".jpg": "Images",
-    ".jpeg": "Images",
-    ".pdf": "Documents",
-    ".txt": "Documents",
-    ".mp3": "Music",
-    ".py": "Code",
-    ".zip": "Archives",
-}
+CONFIG_FILE = Path(__file__).parent / "config.json"
+
+with open(CONFIG_FILE, encoding="utf-8") as file:
+    config = json.load(file)
+
+extension_to_category = {}
+for category, extensions in config["categories"].items():
+    for extension in extensions:
+        extension_to_category[extension.lower()] = category
 
 parser = argparse.ArgumentParser(description="Organize files into folders by type.")
 parser.add_argument("--folder", default="test_folder", help="Folder to organize (default: test_folder)")
@@ -28,7 +28,7 @@ if not folder.is_dir():
 for item in list(folder.iterdir()):
     if item.is_file():
         extension = item.suffix.lower()
-        category = CATEGORIES.get(extension, "Others")
+        category = extension_to_category.get(extension, "Others")
         destination_folder = folder / category
 
         if dry_run:

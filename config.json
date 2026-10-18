@@ -1,0 +1,14 @@
+
+{
+    "categories": {
+        "Images": [".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif"],
+        "Documents": [".pdf", ".doc", ".docx", ".odt", ".txt", ".md", ".epub"],
+        "Presentations": [".ppt", ".pptx"],
+        "Spreadsheets": [".xls", ".xlsx", ".csv"],
+        "Archives": [".zip", ".7z", ".rar"],
+        "Installers": [".exe", ".msi"],
+        "Code": [".py", ".java", ".m", ".html", ".htm"],
+        "Music": [".mp3", ".wav"],
+        "Videos": [".mp4", ".mkv"]
+    }
+}
