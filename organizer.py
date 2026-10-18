@@ -5,6 +5,19 @@ from pathlib import Path
 
 CONFIG_FILE = Path(__file__).parent / "config.json"
 
+
+def get_unique_path(path):
+    if not path.exists():
+        return path
+
+    counter = 1
+    while True:
+        new_path = path.with_name(f"{path.stem} ({counter}){path.suffix}")
+        if not new_path.exists():
+            return new_path
+        counter += 1
+
+
 with open(CONFIG_FILE, encoding="utf-8") as file:
     config = json.load(file)
 
@@ -39,10 +52,15 @@ for item in list(folder.iterdir()):
     extension = item.suffix.lower()
     category = extension_to_category.get(extension, "Others")
     destination_folder = folder / category
+    destination = get_unique_path(destination_folder / item.name)
+
+    note = ""
+    if destination.name != item.name:
+        note = f" (renamed to '{destination.name}')"
 
     if dry_run:
-        print(f"[DRY RUN] Would move: {item.name} -> {category}/")
+        print(f"[DRY RUN] Would move: {item.name} -> {category}/{note}")
     else:
         destination_folder.mkdir(exist_ok=True)
-        shutil.move(item, destination_folder / item.name)
-        print(f"Moved: {item.name} -> {category}/")
+        shutil.move(item, destination)
+        print(f"Moved: {item.name} -> {category}/{note}")
