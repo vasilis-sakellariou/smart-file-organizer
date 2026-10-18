@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 FOLDER = Path("test_folder")
@@ -13,8 +14,13 @@ CATEGORIES = {
     ".zip": "Archives",
 }
 
-for item in FOLDER.iterdir():
+for item in list(FOLDER.iterdir()):
     if item.is_file():
-      extension = item.suffix.lower()
-      category = CATEGORIES.get(extension, "Others")
-      print(f"{item.name}->{category}")
+        extension = item.suffix.lower()
+        category = CATEGORIES.get(extension, "Others")
+
+        destination_folder = FOLDER / category
+        destination_folder.mkdir(exist_ok=True)
+
+        shutil.move(item, destination_folder / item.name)
+        print(f"Moved: {item.name} -> {category}/")
